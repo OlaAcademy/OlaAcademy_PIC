@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-4.0.xsd
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+	http://www.springframework.org/schema/cache
+	http://www.springframework.org/schema/cache/spring-cache-4.0.xsd">
+
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
+
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- set the max upload size100MB -->
+		<property name="maxUploadSize">
+			<value>104857600</value>
+		</property>
+		<property name="maxInMemorySize">
+			<value>4096</value>
+		</property>
+	</bean>
+
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass" value="com.mysql.jdbc.Driver"></property>
+		<property name="jdbcUrl" value="jdbc:mysql://10.9.9.124:3306/olaxueyuan"></property>
+		<property name="user" value="root"></property>
+		<property name="password" value="Olaxueyuan10010"></property>
+		<property name="initialPoolSize" value="20" />
+		<property name="minPoolSize" value="10" />
+		<property name="maxPoolSize" value="60" />
+		<property name="maxIdleTime" value="7200" />
+		<property name="acquireIncrement" value="5" />
+		<property name="checkoutTimeout" value="18000" />
+		<property name="maxIdleTimeExcessConnections" value="10" />
+	</bean>
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="hibernateProperties">
+			<value>
+				hibernate.cache.use_second_level_cache=false
+				hibernate.cache.use_query_cache=false
+				hibernate.jdbc.fetch_size=50
+				hibernate.jdbc.batch_size=50
+				hibernate.current_session_context_class=org.springframework.orm.hibernate4.SpringSessionContext
+				hibernate.show_sql=true
+				hibernate.dialect=org.hibernate.dialect.MySQLDialect
+				hibernate.connection.autocommit=true
+				hibernate.connection.release_mode=auto
+				hibernate.format_sql=true
+				javax.persistence.validation.mode=none
+			</value>
+		</property>
+		<property name="packagesToScan" value="com.sd.vo" />
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<bean
+		class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor" />
+
+	<context:component-scan base-package="com.sd.*" />
+
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="sav*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="del*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="add*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="upd*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="qry*" propagation="NOT_SUPPORTED"
+				read-only="true" />
+			<tx:method name="*" propagation="NOT_SUPPORTED" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+	<!-- 事物切入 -->
+	<aop:config proxy-target-class="true">
+		<aop:pointcut id="cut"
+			expression="execution(* com.sd.service.impl.*.*(..))" />
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="cut" />
+	</aop:config>
+</beans>
