@@ -1,8 +1,12 @@
 package com.sd.action;
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -356,9 +360,19 @@ public class PicAction {
 			} 
 			if (!fileS.exists()) {    
 				fileS.mkdirs();    
-			} 
+			}
+			
+	        BufferedImage bufferImage = ImageIO.read(this.imgData);
+			if(imgAngle!=null&&!imgAngle.equals("")&&!imgAngle.equals("0")){
+				//旋转
+		        bufferImage = rotateImage(bufferImage,-Integer.parseInt(imgAngle));
+			}
+			ByteArrayOutputStream os = new ByteArrayOutputStream();
+			ImageIO.write(bufferImage, "jpg", os);
+			InputStream fis = new ByteArrayInputStream(os.toByteArray());
+			
 			FileOutputStream fos = new FileOutputStream(path+"Big/"+uuid+"."+picType);
-			FileInputStream fis = new FileInputStream(imgData);  
+			
 			byte[] buf = new byte[1024];  
 			int len = 0;  
 			while ((len = fis.read(buf)) > 0) {  
@@ -438,7 +452,7 @@ public class PicAction {
             else  
             {  
                 file = new File(srcFilePath);  
-                src = ImageIO.read(file);  
+                src = ImageIO.read(file);
                 out = new FileOutputStream(descFilePath);  
   
                 imgWrier.reset();  
@@ -457,6 +471,32 @@ public class PicAction {
         }  
         return true;  
     }  
+	
+	/** 
+    * 旋转图片为指定角度 
+    *  
+    * @param bufferedimage 
+    *            目标图像 
+    * @param degree 
+    *            旋转角度 
+    * @return 
+    */  
+   public BufferedImage rotateImage(BufferedImage bufferedimage,  
+           int degree){  
+       int w= bufferedimage.getWidth();// 得到图片宽度。  
+       int h= bufferedimage.getHeight();// 得到图片高度。  
+       int type= bufferedimage.getColorModel().getTransparency();// 得到图片透明度。  
+       BufferedImage img;// 空的图片。  
+       Graphics2D graphics2d;// 空的画笔。  
+       (graphics2d= (img= new BufferedImage(w, h, type))  
+               .createGraphics()).setRenderingHint(  
+               RenderingHints.KEY_INTERPOLATION,  
+               RenderingHints.VALUE_INTERPOLATION_BILINEAR);  
+       graphics2d.rotate(Math.toRadians(degree), w / 2, h / 2);// 旋转，degree是整型，度数，比如垂直90度。  
+       graphics2d.drawImage(bufferedimage, 0, 0, null);// 从bufferedimagecopy图片至img，0,0是img的坐标。  
+       graphics2d.dispose();  
+       return img;// 返回复制好的图片，原图片依然没有变，没有旋转，下次还可以使用。  
+   }  
 	
 	
 	public String getPicType() {

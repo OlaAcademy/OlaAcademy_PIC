@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -31,8 +30,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.sd.service.MovService;
-import com.sd.service.PicService;
-import com.sd.vo.Trespic;
 import com.sd.vo.Tresvid;
 @Controller
 @RequestMapping("/video")
@@ -57,10 +54,9 @@ public class MovieAction {
         MultipartFile movData = multipartRequest.getFile("movData");
         movType=multipartRequest.getParameter("movType");
         String str=new File(request.getSession().getServletContext().getRealPath("")).getParent();
-		String path=str+"\\movie\\";
+		String path=str+"/movie/";
 		Date date=new Date(); 
-		SimpleDateFormat stingDateFormat  = new SimpleDateFormat("yyyy\\MM\\dd\\");  
-		SimpleDateFormat stingDateFormat2  = new SimpleDateFormat("yyyy/MM/dd/");  
+		SimpleDateFormat stingDateFormat  = new SimpleDateFormat("yyyy/MM/dd/");  
 		path+= stingDateFormat.format(date);
 		File fileM= new File(path);
 		// 如果指定的路径没有就创建    
@@ -88,14 +84,14 @@ public class MovieAction {
 		JSONObject json = new JSONObject();
 		if("mp4".equals(movType)){
 			this.take(path+uuid+"."+movType, path+uuid+".jpg");
-			json.put("pic","movie/"+stingDateFormat2.format(date)+uuid+".jpg");
+			json.put("pic","movie/"+stingDateFormat.format(date)+uuid+".jpg");
 		}
 		
 		Tresvid tresvid=new Tresvid();
 		tresvid.setRvGid(uuid);
-		tresvid.setRvUrl("movie\\"+stingDateFormat.format(date)+uuid+"."+movType);
+		tresvid.setRvUrl("movie/"+stingDateFormat.format(date)+uuid+"."+movType);
 		movService.save(tresvid);
-		json.put("url","movie/"+stingDateFormat2.format(date)+uuid+"."+movType);
+		json.put("url","movie/"+stingDateFormat.format(date)+uuid+"."+movType);
         out.print(json.toString());  
         out.close();  
     } 
@@ -104,7 +100,7 @@ public class MovieAction {
         try {
         	String str=new File(request.getSession().getServletContext().getRealPath("")).getParent();
             // path是指欲下载的文件的路径。
-        	path=str+'\\'+path;
+        	path=str+'/'+path;
             File file = new File(path);
             // 取得文件名。
             String filename = file.getName();
@@ -135,10 +131,9 @@ public class MovieAction {
 		try {
 			HttpServletRequest request = ServletActionContext.getRequest();
 			String str=new File(request.getSession().getServletContext().getRealPath("")).getParent();
-			String path=str+"\\movie\\";
+			String path=str+"/movie/";
 			Date date=new Date(); 
-			SimpleDateFormat stingDateFormat  = new SimpleDateFormat("yyyy\\MM\\dd\\");  
-			SimpleDateFormat stingDateFormat2  = new SimpleDateFormat("yyyy/MM/dd/");  
+			SimpleDateFormat stingDateFormat  = new SimpleDateFormat("yyyy/MM/dd/");  
 			path+= stingDateFormat.format(date);
 			File fileM= new File(path);
 			// 如果指定的路径没有就创建    
@@ -170,10 +165,10 @@ public class MovieAction {
 			JSONObject json = new JSONObject();
 			json.put("code", "1");
 			json.put("message", "上传成功");
-			json.put("url","movie/"+stingDateFormat2.format(date)+uuid+"."+movType);
+			json.put("url","movie/"+stingDateFormat.format(date)+uuid+"."+movType);
 			if("mp4".equals(movType)){
 				this.take(path+uuid+"."+movType, path+uuid+".jpg");
-				json.put("pic","movie/"+stingDateFormat2.format(date)+uuid+".jpg");
+				json.put("pic","movie/"+stingDateFormat.format(date)+uuid+".jpg");
 			}
 			json.put("gid",uuid);
 			HttpServletResponse rep = ServletActionContext.getResponse();
@@ -217,30 +212,30 @@ public class MovieAction {
 	@RequestMapping("/firstPic.do")
 	public boolean take(String videoLocation, String imageLocation)
 	{
-	// 低精度
-	List commend = new java.util.ArrayList();
-	commend.add("D://tool//ffmpeg.exe");//视频提取工具的位置
-	commend.add("-i");
-	commend.add(videoLocation);
-	commend.add("-y");
-	commend.add("-f");
-	commend.add("image2");
-	commend.add("-ss");
-	commend.add("0");
-	commend.add("-t");
-	commend.add("0.001");
-	commend.add("-s");
-	commend.add("480x270");
-	commend.add(imageLocation);
+		// 低精度
+		List commend = new java.util.ArrayList();
+		commend.add("/usr/local/ffmpeg/bin/ffmpeg");//视频提取工具的位置
+		commend.add("-i");
+		commend.add(videoLocation);
+		commend.add("-y");
+		commend.add("-f");
+		commend.add("image2");
+		commend.add("-ss");
+		commend.add("0");
+		commend.add("-t");
+		commend.add("0.001");
+		commend.add("-s");
+		commend.add("375x220");
+		commend.add(imageLocation);
 	try {
-	ProcessBuilder builder = new ProcessBuilder();
-	builder.command(commend);
-	builder.start();
-	return true;
-	} catch (Exception e) {
-	e.printStackTrace();
-	return false;
-	}
+		ProcessBuilder builder = new ProcessBuilder();
+		builder.command(commend);
+		builder.start();
+		return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
 	public String getGid() {
