@@ -362,17 +362,20 @@ public class PicAction {
 				fileS.mkdirs();    
 			}
 			
-	        BufferedImage bufferImage = ImageIO.read(this.imgData);
-			if(imgAngle!=null&&!imgAngle.equals("")&&!imgAngle.equals("0")){
-				//旋转
-		        bufferImage = rotateImage(bufferImage,-Integer.parseInt(imgAngle));
-			}
-			ByteArrayOutputStream os = new ByteArrayOutputStream();
-			ImageIO.write(bufferImage, "jpg", os);
-			InputStream fis = new ByteArrayInputStream(os.toByteArray());
+			// 图片旋转
+//	        BufferedImage bufferImage = ImageIO.read(this.imgData);
+//			if(imgAngle!=null&&!imgAngle.equals("")&&!imgAngle.equals("0")){
+//				//旋转
+//		        bufferImage = rotateImage(bufferImage,-Integer.parseInt(imgAngle));
+//			}
+//			ByteArrayOutputStream os = new ByteArrayOutputStream();
+//			ImageIO.write(bufferImage, "jpg", os);
+//			InputStream fis = new ByteArrayInputStream(os.toByteArray());
+//			
+//			FileOutputStream fos = new FileOutputStream(path+"Big/"+uuid+"."+picType);
 			
 			FileOutputStream fos = new FileOutputStream(path+"Big/"+uuid+"."+picType);
-			
+			FileInputStream fis = new FileInputStream(imgData);  
 			byte[] buf = new byte[1024];  
 			int len = 0;  
 			while ((len = fis.read(buf)) > 0) {  
